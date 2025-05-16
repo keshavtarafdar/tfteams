@@ -1,0 +1,30 @@
+.input-wrapper {
+    background-color: white;
+    width: 100%;
+    height: 2.5rem;
+    border-radius: 10px;
+    padding: 0 15px; /* vertical, horizontal */
+    box-shadow: 0px 0px 8px #ddd; /* offset x and y, blur, color */
+    display: flex;
+    align-items: center;
+}
+
+.search-box {
+    background-color: transparent;
+    border: none;
+    padding-left: 5px;
+    width: 100%;
+    height: 100%;
+    font-size: 1.1rem;
+    margin-left: 5px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.search-box:focus {
+    outline: none;
+}
+
+#search-icon {
+    color: royalblue;
+    font-weight: bold;
+}
