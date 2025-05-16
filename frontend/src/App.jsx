@@ -1,27 +1,24 @@
-import { useState, useEffect } from 'react';
-import './App.css';
+import { useState, useEffect } from 'react'
+import './App.css'
 
-import SearchBar from "./components/SearchBar";
+import SearchBar from "./components/SearchBar"
 
 function App() {
-  // const [msg, setMsg] = useState('Loading...')
 
-  // useEffect(() => {
-  //   fetch('/api/ping')
-  //     .then(res => res.json())
-  //     .then(data => setMsg(data.message))
-  // }, [])
+  getSummoner = (gameName, tagLine) => {
+    
+  }
 
   return (
     <div className="app">
       <div className="search-bar-container">
-        <SearchBar />
+        <SearchBar 
+          placeholder="Game Name#tag"
+          onSubmit={getSummoner}
+        />
       </div>
-      {/*
-        <h1>{msg}</h1>
-      */}
     </div>
   );
 }
 
-export default App;
+export default App

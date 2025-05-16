@@ -20,6 +20,7 @@
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
+/* Remove focus outline from search box. */
 .search-box:focus {
     outline: none;
 }

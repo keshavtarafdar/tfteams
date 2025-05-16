@@ -3,10 +3,20 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 import requests
 
+
+# const [msg, setMsg] = useState('Loading...')
+# useEffect(() => {
+#    fetch('/api/ping')
+#      .then(res => res.json())
+#      .then(data => setMsg(data.message))
+# }, [])
+
 load_dotenv()
-RIOT_KEY = os.getenv("RIOT_API_KEY")
-BASE_URL = "https://na1.api.riotgames.com"
 app = FastAPI()
+
+api_key = os.getenv("RIOT_API_KEY")
+region = "na1"
+BASE_URL = "https://{region}.api.riotgames.com"
 
 # @app is a path operation decorator - tells FastAPI that ping()
 # handles get operations at the path "/api/ping"

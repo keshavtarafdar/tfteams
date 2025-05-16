@@ -5,7 +5,7 @@
 }
 
 .search-bar-container {
-    padding-top: 20vh; /* 20% of viewport height */
+    padding-top: 10vh; /* 20% of viewport height */
     width: 40%; /* 40% of parent width */
     margin: auto;
     display: flex;
