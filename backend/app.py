@@ -20,6 +20,6 @@ BASE_URL = "https://{region}.api.riotgames.com"
 
 # @app is a path operation decorator - tells FastAPI that ping()
 # handles get operations at the path "/api/ping"
-@app.get("/api/ping")
+@app.post("api/lookup")
 def ping():
     return {"message": "pong"}

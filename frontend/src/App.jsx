@@ -5,8 +5,8 @@ import SearchBar from "./components/SearchBar"
 
 function App() {
 
-  getSummoner = (gameName, tagLine) => {
-    
+  const getSummoner = (gameName, tagLine) => {
+    console.log("Searching for:", gameName, tagLine)
   }
 
   return (
