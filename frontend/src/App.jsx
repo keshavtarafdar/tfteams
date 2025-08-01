@@ -25,9 +25,9 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error: ${response.status}`);
       }
-
       setSummonerData(await response.json())
     } catch (error) {
       setError(error.message)
