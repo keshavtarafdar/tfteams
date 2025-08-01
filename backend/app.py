@@ -1,4 +1,4 @@
-import os, requests
+import os, requests, json
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
@@ -28,22 +28,43 @@ class SearchData(BaseModel):
     tagLine: str
 
 API_KEY = os.getenv("RIOT_API_KEY")
+print(API_KEY)
 
 # Path option decorator that defines lookup() as handling requests to the route /api/lookup
 @app.post("/api/lookup")
-def lookup(data:SearchData):
-    base_url = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
-    request_url = "{}{}/{}".format(base_url, data.gameName, data.tagLine)
+def get_puuid(data:SearchData):
+    request_url = f"https://na1.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{data.gameName}/{data.tagLine}"
     headers = {
         "X-Riot-Token": API_KEY
     }
 
     try:
-        riot_response = requests.get(request_url, headers=headers)
-        riot_response.raise_for_status() # Raises an HTTPError if request is unsuccessful
-    except requests.exceptions.RequestException as e: # Catches the HTTPError from above
-        if riot_response.status_code == 404:
+        response = requests.get(request_url, headers=headers)
+        response.raise_for_status() # Raises an HTTPError if request is unsuccessful
+    except requests.exceptions.HTTPError as e: # Catches the HTTPError from above
+        if e.response.status_code == 404:
             raise HTTPException(status_code=404, detail=f"Riot account '{data.gameName}#{data.tagLine}' not found.")
         raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
     
-    return riot_response.json()
+    puuid = response.json()['puuid']
+    return get_summoner(puuid)
+
+def get_summoner(puuid:str):
+    request_url = f"https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+    headers = {
+        "X-Riot-Token": API_KEY
+    }
+
+    try:
+        response = requests.get(request_url, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            raise HTTPException(status_code=404, detail=f"Summoner with PUUID '{puuid}' not found.")
+        raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
+    
+    return response.json()
