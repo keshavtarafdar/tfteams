@@ -33,7 +33,7 @@ print(API_KEY)
 # Path option decorator that defines lookup() as handling requests to the route /api/lookup
 @app.post("/api/lookup")
 def get_puuid(data:SearchData):
-    request_url = f"https://na1.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{data.gameName}/{data.tagLine}"
+    request_url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{data.gameName}/{data.tagLine}"    
     headers = {
         "X-Riot-Token": API_KEY
     }
@@ -49,6 +49,7 @@ def get_puuid(data:SearchData):
         raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
     
     puuid = response.json()['puuid']
+    print(puuid)
     return get_summoner(puuid)
 
 def get_summoner(puuid:str):
