@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Router, Route, Switch} from 'react-router-dom'
+import { Routes, Route} from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ProfilePage from './pages/ProfilePage'
 import './App.css' 
@@ -42,12 +42,10 @@ function App() {
 
   return (
     <div className="app">
-      <Router>
-        <Switch>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile/:region/:gameName/:tagLine" element={<Profile />} /> 
-        </Switch>
-      </Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile/:region/:gameName/:tagLine" element={<Profile />} /> 
+      </Routes>
     </div>
   );
 }
