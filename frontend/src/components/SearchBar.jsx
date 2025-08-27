@@ -7,12 +7,13 @@ const SearchBar = ({ placeholder, onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        const [gameName, tagLine] = input.split("#")
-        if(!gameName || !tagLine) {
+        const [region, rest] = input.split('/')
+        const [gameName, tagLine] = rest.split("#")
+        if(!region || !gameName || !tagLine) {
             /* TODO: display an error */
             return;
         }
-        onSubmit(gameName.trim(), tagLine.trim())
+        onSubmit(region.trim(), gameName.trim(), tagLine.trim())
     };
 
     return (

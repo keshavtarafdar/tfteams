@@ -15,11 +15,12 @@ const Home = () => {
     <div className="search-bar-container">
       <h1>TFTeams</h1>
       <SearchBar 
-        placeholder="Game Name#tag"
+        placeholder="Region/Game Name#Tag"
         // SearchBar's handleSubmit validates input, then calles handleSearch above
         onSubmit={handleSearch}
       />
     </div>
-)};
+  );
+};
 
 export default Home;
