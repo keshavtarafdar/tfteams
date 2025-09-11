@@ -7,6 +7,7 @@ const Profile = () => {
   const [ summonerData, setSummonerData ] = useState(null)
   const [ isLoading, setLoading ] = useState(false)
   const [ error, setError ] = useState(null)
+  const [ detailedMatches, setDetailedMatches] = useState(null)
 
   useEffect(() => {
     const fetchAllPlayerData = async () => {
@@ -15,12 +16,11 @@ const Profile = () => {
       setLoading(true)
       setError(null)
 
+      // Fetch summoner data (puuid)
       try {
         const response = await fetch('/api/lookup', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ region, gameName, tagLine }), // Convert vars to JSON strings
         });
   
@@ -28,17 +28,37 @@ const Profile = () => {
           const errorData = await response.json();
           throw new Error(errorData.detail || `HTTP error: ${response.status}`);
         }
+
         setSummonerData(await response.json())
       } catch (error) {
         setError(error.message)
-        console.log("Failed to fetch summoner:", error)
       } finally {
         setLoading(false)
       }
 
-    };
+      // Fetch match details
+      setLoading(true)
+      try {
+        const response = await fetch('/api/match-details', {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ match_ids: data, region}),
+        });
 
-    fetchAllPlayerData();
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || `HTTP error: ${response.status}`);
+        }
+
+        setDetailedMatches(await response.json())
+      } catch(error) {
+        setError(error.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    if(gameName && tagLine && region) {
+      fetchAllPlayerData();
+    }
   }, [region, gameName, tagLine]); // Re-run effect if the user in the URL changes
 
   if (isLoading) {
