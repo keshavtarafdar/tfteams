@@ -1,16 +1,21 @@
+# Overview
+A web application to allow Teamfight Tactics players to view player match history and gameplay analytics, 
+as well as save and share their favorite compositions.
+
 ## Prerequisites
 Python 3.10+, Node 16+
 
-## Install
-git clone … && cd TFTeams
-# backend
-cd backend && python3 -m venv venv && source venv/bin/activate
+## Setup
+cd backend && python3 -m venv venv
+
+source venv/bin/activate
+
 pip install -r requirements.txt
-# frontend
+
 cd ../frontend && npm install
 
-## Run
-# in one shell (backend)
+# Run
+### Backend
 cd backend && source venv/bin/activate && uvicorn app:app --reload
-# in another (frontend)
+### Frontend
 cd frontend && npm run dev
