@@ -41,11 +41,10 @@ leagueId = None
 
 # Path option decorator that defines lookup() as handling requests to the route /api/lookup
 @app.post("/api/lookup")
-def get_puuid(data:SearchData):
+def get_puuid_and_matches(data:SearchData):
+    # puuid
     request_url = f"https://{data.region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{data.gameName}/{data.tagLine}"    
-    headers = {
-        "X-Riot-Token": API_KEY
-    }
+    headers = { "X-Riot-Token": API_KEY }
 
     try:
         response = requests.get(request_url, headers=headers)
@@ -58,14 +57,19 @@ def get_puuid(data:SearchData):
         raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
     
     puuid = response.json()['puuid']
-    return get_match_history(puuid, data.region)
+
+    # matches
+    match_ids = get_match_history(puuid, data.region)
+
+    return {
+        "puuid": puuid,
+        "match_ids": match_ids
+    }
 
 @app.post("/api/match-details")
 def get_match_details(data:MatchIdList):
     match_details = []
-    headers = {
-        "X-Riot-Token": API_KEY
-    }
+    headers = { "X-Riot-Token": API_KEY }
 
     for id in data.match_ids:
         request_url = f"https://{data.region}.api.riotgames.com/tft/match/v1/matches/{id}/"
@@ -83,9 +87,7 @@ def get_match_details(data:MatchIdList):
         
 def get_leagueId(puuid:str):
     request_url = f"https://na1.api.riotgames.com/tft/league/v1/by-puuid/{puuid}"
-    headers = {
-        "X-Riot-Token": API_KEY
-    }
+    headers = { "X-Riot-Token": API_KEY }
 
     try:
         response = requests.get(request_url, headers=headers)
@@ -102,9 +104,7 @@ def get_leagueId(puuid:str):
 def get_match_history(puuid:str, region: str):
     # TODO manually adding the start and end headers to this request...
     request_url = f"https://{region}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids?start=0&count=20"
-    headers = {
-        "X-Riot-Token": API_KEY
-    }
+    headers = { "X-Riot-Token": API_KEY }
 
     try:
         response = requests.get(request_url, headers=headers)

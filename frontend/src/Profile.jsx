@@ -14,49 +14,49 @@ const Profile = () => {
     const fetchAllPlayerData = async () => {
       // Reset data and begin loading
       setSummonerData(null)
+      setDetailedMatches(null)
       setLoading(true)
       setError(null)
 
-      // Fetch summoner data (puuid)
+      // Fetch summoner data (puuid) and match IDs
       try {
-        const response = await fetch('/api/lookup', {
+        const lookupResponse = await fetch('/api/lookup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ region, gameName, tagLine }), // Convert vars to JSON strings
         });
   
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || `HTTP error: ${response.status}`);
+        if (!lookupResponse.ok) {
+          const errorData = await lookupResponse.json();
+          throw new Error(errorData.detail || `HTTP error: ${lookupResponse.status}`);
         }
-
-        setSummonerData(await response.json())
-      } catch (error) {
-        setError(error.message)
-      } finally {
-        setLoading(false)
-      }
-
-      // Fetch match details
-      setLoading(true)
-      try {
-        const response = await fetch('/api/match-details', {
+        
+        const lookupData = await lookupResponse.json();
+        setSummonerData(lookup_data);
+        
+        // Fetch match details using IDs from lookup
+        const detailsResponse = await fetch('/api/match-details', {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ match_ids: data, region}),
+          body: JSON.stringify({ match_ids: lookupData.match_ids, region }),
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || `HTTP error: ${response.status}`);
+        if (!detailsResponse.ok) {
+          const errorData = await detailsResponse.json();
+          throw new Error(errorData.detail || `HTTP error: ${detailsResponse.status}`);
         }
+        
+        const matchDetails = await detailsResponse.json();
+        setDetailedMatches(matchDetails);
 
-        setDetailedMatches(await response.json())
       } catch(error) {
-        setError(error.message)
+        setError(error.message);
+        console.error("Failed to fetch player data:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
+
     if(gameName && tagLine && region) {
       fetchAllPlayerData();
     }
