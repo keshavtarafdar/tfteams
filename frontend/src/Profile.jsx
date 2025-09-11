@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import Match from './components/Match';
 
 const Profile = () => {
   const { region, gameName, tagLine } = useParams(); // Extracts URL params
@@ -67,6 +68,8 @@ const Profile = () => {
 
   return (
     <div>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
       <h1>Profile for {region}/{gameName}#{tagLine}</h1>
 
       {summonerData && (
@@ -80,9 +83,21 @@ const Profile = () => {
         </div>
       )}
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {detailedMatches && (
+        <div className="match-history">
+          <h2>Recent Matches</h2>
+          {detailedMatches.map(match => (
+            <Match
+              key={match.metadata.match_id}
+              matchData={match}
+              puuid={summonerData.puuid}
+            />
+          ))}
+        </div>
+      )}
+
     </div>
-    
+
   );
 };
 
