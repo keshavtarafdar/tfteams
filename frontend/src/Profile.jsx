@@ -32,7 +32,7 @@ const Profile = () => {
         }
         
         const lookupData = await lookupResponse.json();
-        setSummonerData(lookup_data);
+        setSummonerData(lookupData);
         
         // Fetch match details using IDs from lookup
         const detailsResponse = await fetch('/api/match-details', {
@@ -71,17 +71,6 @@ const Profile = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       <h1>Profile for {region}/{gameName}#{tagLine}</h1>
-
-      {summonerData && (
-        <div>
-          <h2>Recent Matches</h2>
-          <ul>
-            {summonerData.map(matchId => (
-              <li key={matchId}>{matchId}</li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {detailedMatches && (
         <div className="match-history">

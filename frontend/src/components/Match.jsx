@@ -10,12 +10,13 @@ const Match = ({ matchData, puuid }) => {
   return (
     <div className="match-card">
       <div className="placement">
-        <h2>#{player.placement}</h2>
+        <h2>{player.placement}</h2>
       </div>
       <div className="units">
         {player.units.map(unit => (
           <div key={unit.character_id} className="unit">
-            <img src={`../assets/champions/${unit.character_id.slice(6)}.jpg`} alt={unit.character_id} />
+            const champ_name = unit.character_id.split('_')[1].toLowerCase();
+            <img src={`/champions/${champ_name}.jpg`} alt={unit.character_id} />
             {/* Render items, stars, etc. */}
           </div>
         ))}
