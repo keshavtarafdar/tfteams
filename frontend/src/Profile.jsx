@@ -48,8 +48,6 @@ const Profile = () => {
   return (
     <div>
       <h1>Profile for {region}/{gameName}#{tagLine}</h1>
-      
-      <pre>{JSON.stringify(summonerData, null, 2)}</pre>
 
       {summonerData && (
         <div>
