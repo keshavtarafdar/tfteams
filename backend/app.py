@@ -73,8 +73,11 @@ def get_match_details(data:MatchIdList):
             response = requests.get(request_url, headers=headers)
             response.raise_for_status()
             match_details.append(response.json())
+        except requests.exceptions.HTTPError as e:
+            print(f"Match ID #{id} not found: {e}")
+            continue # to next match
         except requests.exceptions.RequestException as e:
-            raise HTTPException(status_code=503, detail=f"Match not found: {e}")
+            raise HTTPException(status_code=503, detail=f"A network error occurred: {e}")
     
     return match_details
         
@@ -92,7 +95,7 @@ def get_leagueId(puuid:str):
             raise HTTPException(status_code=404, detail=f"Summoner with PUUID '{puuid}' not found.")
         raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
     except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
+        raise HTTPException(status_code=503, detail=f"A network error occurred: {e}")
     
     leagueId = response.json()['leagueId']
 
