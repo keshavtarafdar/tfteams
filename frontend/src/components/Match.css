@@ -1,6 +1,9 @@
 .match-card {
     display: flex;
-    align-items: center; /* Vertically centers the portraits in each card */
+    flex-direction: column;
+    justify-content: left;
+    width: 70%; /* Takes up 90% of parent's width */
+    margin: 0 auto;
     background-color: #f0f2f5;
     border-radius: 8px;
     padding: 10px;

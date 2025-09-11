@@ -1,6 +1,19 @@
 import React from 'react';
 import "./Match.css"
 
+const getSuffix = (placement) => {
+  console.log(placement);
+  if (placement == '1') {
+    return 'st';
+  } else if (placement == '2') {
+    return 'nd';
+  } else if (placement == '3') {
+    return 'rd';
+  } else {
+    return 'th';
+  }
+}
+
 const Match = ({ matchData, puuid }) => {
   const player = matchData.info.participants.find(p => p.puuid === puuid);
 
@@ -11,7 +24,7 @@ const Match = ({ matchData, puuid }) => {
   return (
     <div className="match-card">
       <div className="placement">
-        <h2>{player.placement}</h2>
+        <h2>{player.placement}{getSuffix(player.placement)}</h2>
       </div>
       <div className="units-container">
         {player.units.map(unit => (
