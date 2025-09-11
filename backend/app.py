@@ -1,4 +1,5 @@
 import os, requests, json
+from typing import List
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
@@ -22,11 +23,16 @@ app.add_middleware(
     allow_headers=["*"], # Allows all headers
 )
 
-# Define a data model 
+# Custom data model for summoner data 
 class SearchData(BaseModel):
     region: str
     gameName: str
     tagLine: str
+
+# Custom data model for matches
+class MatchIdList(BaseModel):
+    match_ids: List[str]
+    region: str
 
 API_KEY = os.getenv("RIOT_API_KEY")
 print(API_KEY)
@@ -54,6 +60,24 @@ def get_puuid(data:SearchData):
     puuid = response.json()['puuid']
     return get_match_history(puuid, data.region)
 
+@app.post("/api/match-details")
+def get_match_details(data:MatchIdList):
+    match_details = []
+    headers = {
+        "X-Riot-Token": API_KEY
+    }
+
+    for id in data.match_ids:
+        request_url = f"https://{data.region}.api.riotgames.com/tft/match/v1/matches/{id}/"
+        try:
+            response = requests.get(request_url, headers=headers)
+            response.raise_for_status()
+            match_details.append(response.json())
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=503, detail=f"Match not found: {e}")
+    
+    return match_details
+        
 def get_leagueId(puuid:str):
     request_url = f"https://na1.api.riotgames.com/tft/league/v1/by-puuid/{puuid}"
     headers = {
