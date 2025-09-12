@@ -1,0 +1,13 @@
+.match-history {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 90%; /* Takes up 90% of parent's width */
+    margin: 0 auto;
+    padding: 10px;
+    font-family: system-ui, sans-serif;
+}
+
+h2 {
+    font-size: 2rem;
+}

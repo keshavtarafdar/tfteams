@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Match from './components/Match';
+import "./Profile.css"
 
 const Profile = () => {
   const { region, gameName, tagLine } = useParams(); // Extracts URL params
