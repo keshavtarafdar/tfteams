@@ -29,8 +29,10 @@ const Match = ({ matchData, puuid }) => {
       <div className="units-container">
         {player.units.map(unit => (
           <div key={unit.character_id} className="unit-portrait">
+            <div className="unit-stars">unit.itemNames</div>
             <img src={`/champions/${unit.character_id.split('_')[1].toLowerCase()}.jpg`} alt={unit.character_id} />
-            {/* Render items, stars, etc. */}
+            {/* TODO haven't done radiant items or emblems yet, weird names found in the API test calls */}
+            <div className="unit-items"></div>
           </div>
         ))}
       </div>
