@@ -27,16 +27,35 @@ const Match = ({ matchData, puuid }) => {
         <h2>{player.placement}{getSuffix(player.placement)}</h2>
       </div>
       <div className="units-container">
-        {player.units.map(unit => (
-          <div key={unit.character_id} className="unit-portrait">
-            <div className="unit-stars">unit.itemNames</div>
-            <img src={`/champions/${unit.character_id.split('_')[1].toLowerCase()}.jpg`} alt={unit.character_id} />
+        {player.units.map(unit => {
+          <div key={unit.character_id} className="unit-wrapper">
+            <div className="unit-stars"></div>
+
+            <div className="unit-portrait">
+              <img 
+                src={`/champions/${unit.character_id.split('_')[1].toLowerCase()}.jpg`}
+                alt={unit.character_id}
+              />
+            </div>
+
             {/* TODO haven't done radiant items or emblems yet, weird names found in the API test calls */}
-            <div className="unit-items"></div>
+            <div className="unit-items">
+              {
+                unit.itemNames && unit.itemNames.map(item => {
+                  let itemParts = item.split('_')
+                  let itemPath = (itemParts.length > 1 ? itemParts[itemParts.length - 1] : item).toLowerCase();
+                  <img
+                    key={item}
+                    src={`/items/${itemPath}.png`} 
+                    alt={item}
+                    className="item-icon"
+                  />
+                })
+              }
+            </div>
           </div>
-        ))}
+        })}
       </div>
-      {/* Add traits, game length, other players, etc. */}
     </div>
   );
 };
