@@ -1,6 +1,7 @@
 .match-card {
     display: flex;
     flex-direction: row;
+    align-items: center;
     width: 100%;
     margin: 0 auto;
     background-color: #f0f2f5;
@@ -15,7 +16,6 @@
     font-size: 1.3rem;
     font-weight: bold;
     margin-right: 30px;
-    margin-bottom: 10px;
 }
 
 .units-container {
@@ -23,28 +23,37 @@
     height: 75%;
     align-items: center;
     flex-wrap: wrap; /* Wrap to next line if needed */
-    gap: 5px; /* Adds space b/w flex items */
+    gap: 8px; /* Adds space b/w flex items */
 }
 
 .unit-wrapper {
     display: flex;
+    width: 54px;
     flex-direction: column;
     align-items: center;
+    gap: 4px; /* Between stars, portrait, and items */
 }
 
 .unit-portrait {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 10px;
     border: 2px solid #555;
+    overflow: hidden; /* Crops anything outside of the border radius */
+}
+
+.unit-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Prevent image from being stretched/squashed */
 }
 
 .unit-items {
     display: flex;
     justify-content: center;
     gap: 2px;
-    height: 16px;
-    margin-bottom: 4px;
+    width: 100%; /* Want items to fill wrapper even if there are < 3 */
+    min-height: 16px; /* Keep space for items so that units w/o aren't misaligned */
 }
 
 .item-icon {

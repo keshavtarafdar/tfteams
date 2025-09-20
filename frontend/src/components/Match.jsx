@@ -2,7 +2,6 @@ import React from 'react';
 import "./Match.css"
 
 const getSuffix = (placement) => {
-  console.log(placement);
   if (placement == '1') {
     return 'st';
   } else if (placement == '2') {
@@ -27,7 +26,7 @@ const Match = ({ matchData, puuid }) => {
         <h2>{player.placement}{getSuffix(player.placement)}</h2>
       </div>
       <div className="units-container">
-        {player.units.map(unit => {
+        {player.units.map(unit => (
           <div key={unit.character_id} className="unit-wrapper">
             <div className="unit-stars"></div>
 
@@ -44,17 +43,19 @@ const Match = ({ matchData, puuid }) => {
                 unit.itemNames && unit.itemNames.map(item => {
                   let itemParts = item.split('_')
                   let itemPath = (itemParts.length > 1 ? itemParts[itemParts.length - 1] : item).toLowerCase();
-                  <img
-                    key={item}
-                    src={`/items/${itemPath}.png`} 
-                    alt={item}
-                    className="item-icon"
-                  />
+                  return (
+                    <img
+                      key={item}
+                      src={`/items/${itemPath}.png`} 
+                      alt={item}
+                      className="item-icon"
+                    />
+                  )
                 })
               }
             </div>
           </div>
-        })}
+        ))}
       </div>
     </div>
   );
