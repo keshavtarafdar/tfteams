@@ -40,6 +40,8 @@ const Match = ({ matchData, puuid }) => {
             {/* TODO haven't done radiant items or emblems yet, weird names found in the API test calls */}
             <div className="unit-items">
               {
+                /* TODO "emptybag.png" represents a "blank" TG item meaning they died while their 
+                TG didn't have anything decided...? Make it render as blank */
                 unit.itemNames && unit.itemNames.map(item => {
                   let itemParts = item.split('_')
                   let itemPath = (itemParts.length > 1 ? itemParts[itemParts.length - 1] : item).toLowerCase();
