@@ -28,6 +28,7 @@ class SearchData(BaseModel):
     region: str
     gameName: str
     tagLine: str
+    start: int = 0
 
 # Custom data model for matches
 class MatchIdList(BaseModel):
@@ -59,7 +60,7 @@ def get_puuid_and_matches(data:SearchData):
     puuid = response.json()['puuid']
 
     # matches
-    match_ids = get_match_history(puuid, data.region)
+    match_ids = get_match_history(puuid, data.region, data.start)
 
     return {
         "puuid": puuid,
@@ -101,9 +102,9 @@ def get_leagueId(puuid:str):
     
     leagueId = response.json()['leagueId']
 
-def get_match_history(puuid:str, region: str):
+def get_match_history(puuid:str, region: str, start: int = 0):
     # TODO manually adding the start and end headers to this request...
-    request_url = f"https://{region}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids?start=0&count=20"
+    request_url = f"https://{region}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids?start={start}&count=20"
     headers = { "X-Riot-Token": API_KEY }
 
     try:

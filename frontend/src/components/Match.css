@@ -51,7 +51,7 @@
 .unit-items {
     display: flex;
     justify-content: center;
-    gap: 2px;
+    gap: 1px;
     width: 100%; /* Want items to fill wrapper even if there are < 3 */
     min-height: 16px; /* Keep space for items so that units w/o aren't misaligned */
 }
@@ -60,4 +60,12 @@
     width: 16px;
     height: 16px;
     border-radius: 3px;
+}
+
+.unit-tier {
+    display: flex;
+    justify-content: center;
+    gap: 1px;
+    width: 100%;
+    min-height: 16px;
 }
