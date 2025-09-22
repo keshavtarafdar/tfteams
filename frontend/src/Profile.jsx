@@ -13,26 +13,27 @@ const Pagination = ({ currentPage, onPageChange }) => {
 
   return (
     <div className="pagination-container">
-      <button
+      <button /* 'Previous' button, disabled when on page 1 */
         onClick={() => handlePageClick(currentPage - 1)}
         disabled={currentPage === 1}
         className="page-item"
       >
         &lt;
       </button>
-      {[...Array(pageLim)].map((_, index) => {
-        const pageNumber = index + 1;
+      {[...Array(pageLim)].map((_, i) => { /* Runs pageLim times to generate buttons */
+        const pageNumber = i + 1;
         return (
           <button
-            key={pageNumber}
+            key={pageNumber} /* Required by React for lists */
             onClick={() => handlePageClick(pageNumber)}
+            /* Designates a page as active if we're on it -- allows different styling */
             className={`page-item ${currentPage === pageNumber ? 'active' : ''}`}
           >
             {pageNumber}
           </button>
         );
       })}
-      <button 
+      <button  /* 'Next' button, disabled when on page 10 */
         onClick={() => handlePageClick(currentPage + 1)} 
         disabled={currentPage === pageLim}
         className="page-item"

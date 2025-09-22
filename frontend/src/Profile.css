@@ -11,3 +11,42 @@
 h2 {
     font-size: 2rem;
 }
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-family: system-ui, sans-serif;
+}
+
+.page-item {
+    margin: 0 4px;
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    cursor: pointer; /* Changes cursor to pointer when hovering (show clickable) */
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.page-item:hover:not(:disabled) {
+    border-color: #a5b4fc;
+    background-color: #f7f8ff;
+    color: #4338ca;
+}
+
+.page-item.active {
+    background-color: #6366f1;
+    color: white;
+    border-color: #6366f1;
+    font-weight: 600;
+}
+
+.page-item:disabled {
+    color: #9ca3af;
+    cursor: not-allowed; /* Shows an X in circle when hovering (not clickable) */
+    background-color: #f9fafb;
+}
