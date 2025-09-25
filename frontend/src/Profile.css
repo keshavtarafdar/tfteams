@@ -9,21 +9,22 @@ h2 {
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 20px;
-  }
-  
-  .profile-pic {
+    font-family: system-ui, sans-serif;
+}
+
+.profile-pic {
     position: relative; /* Needed for positioning the level */
     margin-right: 20px;
-  }
-  
-  .profile-pic img {
+}
+
+.profile-pic img {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     border: 4px solid #3b5998;
-  }
-  
-  .profile-level {
+}
+
+.profile-level {
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -34,57 +35,54 @@ h2 {
     border-radius: 10px;
     font-size: 0.8rem;
     font-weight: bold;
-  }
-  
-  .name-and-stats {
+}
+
+.name-and-stats {
     display: flex;
     flex-direction: column;
-  }
-  
-  .profile-name {
+}
+
+.profile-name {
     font-size: 2.5rem;
     font-weight: bold;
     margin: 0 0 10px 0;
-  }
-  
-  .profile-name span {
+}
+
+.profile-name span {
     font-weight: 300;
     color: #555;
     margin-left: 5px;
-  }
-  
-  .heatmap-container p {
+}
+
+.heatmap-container p {
     margin: 0 0 5px 0;
     font-size: 0.9rem;
     color: #444;
-  }
-  
-  .heatmap-grid {
+}
+
+.heatmap-grid {
     display: grid;
-    background-color: #333;
     border-radius: 8px;
     grid-template-columns: repeat(10, 1fr);
     gap: 4px;
-    padding: 8px;
     width: fit-content; /* Ensures the container shrinks to fit the cells */
-  }
-  
-  .heatmap-cell {
+}
+
+.heatmap-cell {
     width: 24px;
     height: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 4px;
-    color: white;
+    color: rgb(79, 79, 79);
     font-weight: bold;
-  }
-  
-  /* Color classes for placements */
-  .heatmap-cell.gold { background-color: #ffb900; }
-  .heatmap-cell.silver { background-color: #c0c0c0; }
-  .heatmap-cell.gray { background-color: #cd7f32; }
-  .heatmap-cell.lightgray { background-color: #c7e7e9; }
+}
+
+/* Color classes for placements */
+.heatmap-cell.first { background-color: #f5ba54; }
+.heatmap-cell.top-four { background-color: #9bd6de; }
+.heatmap-cell.bottom-four { background-color: #cdd0d4; }
 
 .match-history {
     display: flex;

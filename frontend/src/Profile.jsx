@@ -5,11 +5,9 @@ import "./Profile.css"
 
 const ProfileHeader = ({ summonerInfo, gameName, tagLine, matches }) => {
   const getPlacementColor = (placement) => {
-    if (placement === 1) return 'gold';
-    else if (placement === 2) return 'silver';
-    else if (placement === 3) return 'bronze';
-    else if (placement === 4) return 'lightgray';
-    else return 'gray';
+    if (placement === 1) return 'first';
+    else if (placement <= 4) return 'top-four';
+    else return 'bottom-four';
   };
 
   const placements = matches.map(match => 
