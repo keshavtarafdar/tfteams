@@ -57,13 +57,15 @@ def get_puuid_and_matches(data:SearchData):
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
     
+    # fetch matches
     puuid = response.json()['puuid']
-
-    # matches
     match_ids = get_match_history(puuid, data.region, data.start)
+    profileData = get_profile_info(puuid)
 
     return {
         "puuid": puuid,
+        "profileIconId": profileData["profileIconId"],
+        "summonerLevel": profileData["summonerLevel"],
         "match_ids": match_ids
     }
 
@@ -87,6 +89,7 @@ def get_match_details(data:MatchIdList):
     return match_details
         
 def get_leagueId(puuid:str):
+    # TODO this uses na1 instead of americas (so not encapsulated by region var)
     request_url = f"https://na1.api.riotgames.com/tft/league/v1/by-puuid/{puuid}"
     headers = { "X-Riot-Token": API_KEY }
 
@@ -103,7 +106,6 @@ def get_leagueId(puuid:str):
     leagueId = response.json()['leagueId']
 
 def get_match_history(puuid:str, region: str, start: int = 0):
-    # TODO manually adding the start and end headers to this request...
     request_url = f"https://{region}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids?start={start}&count=20"
     headers = { "X-Riot-Token": API_KEY }
 
@@ -118,3 +120,25 @@ def get_match_history(puuid:str, region: str, start: int = 0):
         raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
     
     return response.json()
+
+@app.post("/api/profile-info")
+def get_profile_info(puuid: str):
+    # TODO this uses na1 instead of americas (so not encapsulated by region var)
+    request_url = f"https://na1.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/{puuid}"
+    headers = { "X-Riot-Token": API_KEY }
+
+    try:
+        response = requests.get(request_url, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            raise HTTPException(status_code=404, detail=f"Summoner with PUUID '{puuid}' not found.")
+        raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
+    
+    profileData = response.json()
+    return {
+        "profileIconId": profileData.get("profileIconId"),
+        "summonerLevel": profileData.get("summonerLevel")
+    }
