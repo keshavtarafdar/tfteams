@@ -3,6 +3,46 @@ import { useParams } from 'react-router-dom';
 import Match from './components/Match';
 import "./Profile.css"
 
+const ProfileHeader = ({ summonerInfo, gameName, tagLine, matches }) => {
+  const getPlacementColor = (placement) => {
+    if (placement === 1) return 'gold';
+    else if (placement === 2) return 'silver';
+    else if (placement === 3) return 'bronze';
+    else if (placement === 4) return 'lightgray';
+    else return 'gray';
+  };
+
+  const placements = matches.map(match => 
+    match.info.participants.find(p => p.puuid === summonerInfo.puuid)?.placement
+  ).filter(Boolean); /* Removes any undefined values */
+
+  return (
+    <div className="profile-header-container">
+      <div className="profile-pic">
+        <img 
+          src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${summonerInfo.profileIconId}.jpg`}
+          alt="Profile Icon"
+        />
+        <span className="profile-level">{summonerInfo.summonerLevel}</span>
+      </div>
+      <div className="name-and-stats">
+        <h1 className="profile-name">{gameName}<span>#{tagLine}</span></h1>
+
+        <div className="heatmap-container">
+          <p>Recent Placements:</p>
+          <div className="heatmap-grid">
+            {placements.map((placement, index) => (
+              <div key={index} className={`heatmap-cell ${getPlacementColor(placement)}`}>
+                {placement}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Pagination = ({ currentPage, onPageChange }) => {
   const pageLim = 10;
 
@@ -122,11 +162,18 @@ const Profile = () => {
     <div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <h1>Profile for {region}/{gameName}#{tagLine}</h1>
+      {summonerData && detailedMatches && (
+        <ProfileHeader
+          summonerInfo={summonerData}
+          gameName={gameName}
+          tagLine={tagLine}
+          matches={detailedMatches}
+        />
+      )}
 
       {detailedMatches && (
         <div className="match-history">
-          <h2>Recent Matches</h2>
+          <h2>Match History</h2>
           {detailedMatches.length > 0 ? (
             detailedMatches.map(match => (
               <Match
