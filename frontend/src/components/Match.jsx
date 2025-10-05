@@ -1,6 +1,39 @@
 import React from 'react';
 import "./Match.css"
 
+const formatTimestamp = (timestamp) => {
+  const now = new Date();
+  const matchDate = new Date(timestamp);
+
+  const diffSeconds = Math.floor((now-matchDate)/1000);
+  const diffDays = Math.floor(diffSeconds/86400);
+  const diffWeeks = Math.floor(diffDays/7);
+  const diffMonths = Math.floor(diffDays/30);
+  const diffYears = Math.floor(diffDays/365);
+
+  if (diffDays < 1) return 'Today';
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  if (diffWeeks < 5) return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
+  if (diffMonths < 12) return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
+  return `${diffYears} year${diffYears > 1 ? 's' : ''} ago`;
+}
+
+const formatGameDuration = (seconds) => {
+  const minutes = Math.floor(seconds/60);
+  const remainingSeconds = Math.round(seconds%60);
+  return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+const getGameMode = (queueId) => {
+  switch(queueId) {
+    case 1100: return 'Ranked';
+    case 1090: return 'Normal';
+    case 1130: return 'Hyper Roll';
+    case 1160: return 'Double Up';
+    default: return 'Other';
+  }
+}
+
 const getSuffix = (placement) => {
   if (placement == '1') {
     return 'st';
@@ -20,10 +53,17 @@ const Match = ({ matchData, puuid }) => {
     return <div>Error loading match data for player.</div>;
   }
 
+  const { queue_id, game_datetime, game_length } = matchData.info;
+
   return (
     <div className="match-card">
       <div className="placement">
         <h2>{player.placement}{getSuffix(player.placement)}</h2>
+      </div>
+      <div className="match-metadata">
+        <h4>{getGameMode(queue_id)}</h4>
+        <p>{formatTimestamp(game_datetime)}</p>
+        <p>{formatGameDuration(game_length)}</p>
       </div>
       <div className="units-container">
         {player.units.map(unit => (

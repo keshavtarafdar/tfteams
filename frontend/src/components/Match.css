@@ -16,6 +16,28 @@
     font-size: 1.3rem;
     font-weight: bold;
     margin-right: 30px;
+    width: 50px;
+}
+
+.match-metadata {
+    display: flex;
+    flex-direction: column;
+    color: #94a3b8;
+    border-left: 1px solid #334155; /* Line to separate from placement */
+    padding-left: 24px;
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.match-metadata h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.match-metadata p {
+    margin: 2px 0 0 0;
+    font-size: 0.9rem;
 }
 
 .units-container {
