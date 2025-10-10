@@ -6,6 +6,8 @@ as well as save and share their favorite compositions.
 Python 3.10+, Node 16+
 
 ## Setup
+(clone repository)
+
 cd backend && python3 -m venv venv
 
 source venv/bin/activate
@@ -16,6 +18,14 @@ cd ../frontend && npm install
 
 # Run
 ### Backend
-cd backend && source venv/bin/activate && uvicorn app:app --reload
+
+cd backend
+
+source venv/bin/activate
+
+uvicorn app:app --reload
+
 ### Frontend
-cd frontend && npm run dev
+cd frontend
+
+npm run dev
