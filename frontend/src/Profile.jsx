@@ -82,71 +82,14 @@ const Pagination = ({ currentPage, onPageChange }) => {
   );
 };
 
-const Profile = () => {
+const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChange }) => {
   const { region, gameName, tagLine } = useParams(); // Extracts URL params
 
-  const [ summonerData, setSummonerData ] = useState(null)
-  const [ isLoading, setLoading ] = useState(false)
-  const [ error, setError ] = useState(null)
-  const [ detailedMatches, setDetailedMatches] = useState(null)
-  const [ currentPage, setCurrentPage ] = useState(1)
-
-  useEffect(() => {
-    const fetchAllPlayerData = async () => {
-      // Reset data and begin loading
-      setSummonerData(null)
-      setDetailedMatches(null)
-      setLoading(true)
-      setError(null)
-
-      // Fetch summoner data (puuid) and match IDs
-      try {
-        const start = (currentPage - 1) * 20;
-        const lookupResponse = await fetch('/api/lookup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ region, gameName, tagLine, start }), // Convert vars to JSON strings
-        });
-  
-        if (!lookupResponse.ok) {
-          const errorData = await lookupResponse.json();
-          throw new Error(errorData.detail || `HTTP error: ${lookupResponse.status}`);
-        }
-        
-        const lookupData = await lookupResponse.json();
-        setSummonerData(lookupData);
-        
-        // Fetch match details using IDs from lookup IF lookup is valid
-        if (lookupData.match_ids && lookupData.match_ids.length > 0) {
-          const detailsResponse = await fetch('/api/match-details', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ match_ids: lookupData.match_ids, region }),
-          });
-  
-          if (!detailsResponse.ok) {
-            const errorData = await detailsResponse.json();
-            throw new Error(errorData.detail || `HTTP error: ${detailsResponse.status}`);
-          }
-          
-          const matchDetails = await detailsResponse.json();
-          setDetailedMatches(matchDetails);
-        } else {
-          setDetailedMatches([]);
-        }
-      } catch(error) {
-        setError(error.message);
-        console.error("Failed to fetch player data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if(gameName && tagLine && region) {
-      fetchAllPlayerData();
-    }
-  }, [region, gameName, tagLine, currentPage]); // Re-run effect if the user in the URL changes
-
+  // User navigates directly to profile URL
+  if (!summonerData || !detailedMatches) {
+    return <div>Loading profile...</div>
+  }
+    
   /* Reset to page 1 when user searches for a new player */
   useEffect(() => {
     setCurrentPage(1);
@@ -160,32 +103,28 @@ const Profile = () => {
     <div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {summonerData && detailedMatches && (
-        <ProfileHeader
-          summonerInfo={summonerData}
-          gameName={gameName}
-          tagLine={tagLine}
-          matches={detailedMatches}
-        />
-      )}
+      <ProfileHeader
+        summonerInfo={summonerData}
+        gameName={gameName}
+        tagLine={tagLine}
+        matches={detailedMatches}
+      />
 
-      {detailedMatches && (
-        <div className="match-history">
-          <h2>Match History</h2>
-          {detailedMatches.length > 0 ? (
-            detailedMatches.map(match => (
-              <Match
-                key={match.metadata.match_id}
-                matchData={match}
-                puuid={summonerData.puuid}
-              />
-            ))
-          ) : (
-            <p>No matches found on this page.</p>
-          )}
-          <Pagination currentPage={currentPage} onPageChange={setCurrentPage} />
-        </div>
-      )}
+      <div className="match-history">
+        <h2>Match History</h2>
+        {detailedMatches.length > 0 ? (
+          detailedMatches.map(match => (
+            <Match
+              key={match.metadata.match_id}
+              matchData={match}
+              puuid={summonerData.puuid}
+            />
+          ))
+        ) : (
+          <p>No matches found on this page.</p>
+        )}
+        <Pagination currentPage={currentPage} onPageChange={onPageChange} />
+      </div>
     </div>
   );
 };
