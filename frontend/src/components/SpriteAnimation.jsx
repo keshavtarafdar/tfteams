@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const useSprite = ({ jsonData, frameRate = 60 }) => {
   const [frame, setFrame] = useState(0);
@@ -47,7 +47,6 @@ const SpriteAnimation = () => {
     backgroundPosition: `-${frameData.x}px -${frameData.y}px`,
     width: `${frameData.w}px`,
     height: `${frameData.h}px`,
-    zoom: 2,
   }
 
   return <div style={style} />

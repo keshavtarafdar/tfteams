@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Home from './Home';
 import Profile from './Profile';
@@ -77,7 +77,12 @@ function App() {
       <Routes>
         <Route 
           path="/" 
-          element={<Home handleSearch={handleSearch} isLoading={isLoading} />} 
+          element={
+            <Home
+              handleSearch={handleSearch}
+              isLoading={isLoading}
+            />
+          } 
         />
         <Route 
           path="/profile/:region/:gameName/:tagLine" 
@@ -88,6 +93,7 @@ function App() {
               error={error}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
+              fetchAllPlayerData={fetchAllPlayerData}
             />
           } 
         /> 

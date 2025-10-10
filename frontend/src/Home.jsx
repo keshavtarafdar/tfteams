@@ -1,6 +1,7 @@
 import React from 'react';
 import SpriteAnimation from './components/SpriteAnimation';
 import SearchBar from './components/SearchBar';
+import './Home.css'
 
 const Home = ({ handleSearch, isLoading }) => {
   return (

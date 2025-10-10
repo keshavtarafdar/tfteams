@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useEffect, useParams } from 'react-router-dom';
 import Match from './components/Match';
+import SpriteAnimation from './components/SpriteAnimation';
 import "./Profile.css"
 
 const ProfileHeader = ({ summonerInfo, gameName, tagLine, matches }) => {
@@ -25,7 +26,6 @@ const ProfileHeader = ({ summonerInfo, gameName, tagLine, matches }) => {
       </div>
       <div className="name-and-stats">
         <h1 className="profile-name">{gameName}<span>#{tagLine}</span></h1>
-
         <div className="heatmap-container">
           <p>Recent Placements:</p>
           <div className="heatmap-grid">
@@ -82,21 +82,29 @@ const Pagination = ({ currentPage, onPageChange }) => {
   );
 };
 
-const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChange }) => {
+const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChange, fetchAllPlayerData }) => {
   const { region, gameName, tagLine } = useParams(); // Extracts URL params
 
-  // User navigates directly to profile URL
-  if (!summonerData || !detailedMatches) {
-    return <div>Loading profile...</div>
-  }
-    
-  /* Reset to page 1 when user searches for a new player */
+  // Handle users directly navigating to a profile URL
+  // (manually trigger fetch)
   useEffect(() => {
-    setCurrentPage(1);
-  }, [region, gameName, tagLine]);
+    if (!summonerData) {
+      fetchAllPlayerData(region, gameName, tagLine, currentPage);
+    }
+  }, [summonerData, fetchAllPlayerData, region, gameName, tagLine, currentPage]);
 
-  if (isLoading) {
-    return <div>Loading profile...</div>;
+  // Display loading animation in the middle of the page
+  if (!summonerData || !detailedMatches) {
+    return (
+      <div style={{ 
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}>
+          <SpriteAnimation />
+      </div>
+    );
   }
 
   return (
