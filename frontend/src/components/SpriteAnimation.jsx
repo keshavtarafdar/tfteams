@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const useSprite = ({ sprite, jsonData, frameRate = 60 }) => {
+const useSprite = ({ jsonData, frameRate = 60 }) => {
   const [frame, setFrame] = useState(0);
 
   /**
@@ -12,31 +12,33 @@ const useSprite = ({ sprite, jsonData, frameRate = 60 }) => {
     if (!jsonData || !jsonData.frames) return;
 
     const frameCount = Object.keys(jsonData.frames).length;
-
     const interval = setInterval(() => {
       setFrame(prevFrame => (prevFrame + 1) % frameCount);
     }, frameRate);
 
     return () => clearInterval(interval);
   }, [jsonData, frameRate]);
-
   return frame;
 };
 
 const SpriteAnimation = () => {
-  const spriteSheetPath = '../assets/poro-loading.png';
-  const jsonPath = '../assets/poro-loading.json';
+  const spriteSheetPath = '/poro-loading.png';
+  const jsonPath = '/poro-loading.json';
 
   const [jsonData, setJsonData] = useState(null);
 
   useEffect(() => {
-    fetch(jsonDataUrl)
+    fetch(jsonPath)
     .then(res=> res.json())
     .then(setJsonData)
     .catch(console.error);
-  }, [jsonDataUrl]);
+  }, [jsonPath]);
 
-  const frameIndex = useSprite({ spriteSheetPath, jsonData });
+  const frameIndex = useSprite({ jsonData });
+  if (!jsonData) {
+    return <div>Loading animation...</div>;
+  }
+  
   const frameName = Object.keys(jsonData.frames)[frameIndex];
   const frameData = jsonData.frames[frameName].frame;
 

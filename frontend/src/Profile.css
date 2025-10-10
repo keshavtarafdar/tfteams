@@ -79,7 +79,6 @@ h2 {
     font-weight: bold;
 }
 
-/* Color classes for placements */
 .heatmap-cell.first { background-color: #f5ba54; }
 .heatmap-cell.top-four { background-color: #9bd6de; }
 .heatmap-cell.bottom-four { background-color: #cdd0d4; }
