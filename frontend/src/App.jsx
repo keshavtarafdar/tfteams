@@ -1,10 +1,9 @@
-import { Routes, Route} from 'react-router-dom'
-import Home from './Home'
-import Profile from './Profile'
-import './App.css'
+import { Routes, Route} from 'react-router-dom';
+import Home from './Home';
+import Profile from './Profile';
+import './App.css';
 
 function App() {
-
   return (
     <div className="app">
       <Routes>
@@ -13,6 +12,6 @@ function App() {
       </Routes>
     </div>
   );
-}
+};
 
-export default App
+export default App;

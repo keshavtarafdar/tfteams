@@ -22,8 +22,8 @@
 .match-metadata {
     display: flex;
     flex-direction: column;
-    color: #94a3b8;
-    border-left: 1px solid #334155; /* Line to separate from placement */
+    color: #6f7a8a;
+    border-left: 1px solid #334155;
     padding-left: 24px;
     width: 150px;
     flex-shrink: 0;
