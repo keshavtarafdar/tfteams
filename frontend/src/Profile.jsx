@@ -1,5 +1,5 @@
-import React from 'react';
-import { useEffect, useParams } from 'react-router-dom';
+import { React } from 'react';
+import { useParams } from 'react-router-dom';
 import Match from './components/Match';
 import SpriteAnimation from './components/SpriteAnimation';
 import "./Profile.css"
@@ -82,19 +82,11 @@ const Pagination = ({ currentPage, onPageChange }) => {
   );
 };
 
-const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChange, fetchAllPlayerData }) => {
-  const { region, gameName, tagLine } = useParams(); // Extracts URL params
-
-  // Handle users directly navigating to a profile URL
-  // (manually trigger fetch)
-  useEffect(() => {
-    if (!summonerData) {
-      fetchAllPlayerData(region, gameName, tagLine, currentPage);
-    }
-  }, [summonerData, fetchAllPlayerData, region, gameName, tagLine, currentPage]);
+const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChange, isLoading }) => {
+  const { gameName, tagLine } = useParams(); // Extracts URL params
 
   // Display loading animation in the middle of the page
-  if (!summonerData || !detailedMatches) {
+  if (isLoading || !detailedMatches) {
     return (
       <div style={{ 
         display: 'flex',
@@ -111,12 +103,14 @@ const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChan
     <div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <ProfileHeader
-        summonerInfo={summonerData}
-        gameName={gameName}
-        tagLine={tagLine}
-        matches={detailedMatches}
-      />
+      {summonerData && (
+        <ProfileHeader
+          summonerInfo={summonerData}
+          gameName={gameName}
+          tagLine={tagLine}
+          matches={detailedMatches}
+        />
+      )}
 
       <div className="match-history">
         <h2>Match History</h2>

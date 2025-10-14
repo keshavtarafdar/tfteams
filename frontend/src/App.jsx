@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Home from './Home';
-import Profile from './Profile';
+import ProfileContainer from './ProfileContainer';
 import './App.css';
 
 function App() {
@@ -14,7 +14,19 @@ function App() {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchAllPlayerData = async (region, gameName, tagLine, page=1) => {
+  /**
+   * useCallback() memoizes this function. Essentially, every time React has to update
+   * the screen, all component functions are reran fron top to bottom. Defining an empty
+   * array as the dependencies means NEVER recreate the function. (region, gameName, etc.
+   * won't change while someone is on the same page until they resubmit the request
+   * with new player data).
+   */
+  const fetchAllPlayerData = useCallback(async (region, gameName, tagLine, page=1) => {
+    // Only clear "old" data (from a previous search) on new searches
+    if (page === 1) {
+      setSummonerData(null);
+      setDetailedMatches(null);
+    }
     setIsLoading(true)
     setError(null)
 
@@ -61,7 +73,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // This function is passed in as a prop to Home.jsx 
   const handleSearch = async (region, gameName, tagLine) => {
@@ -87,13 +99,14 @@ function App() {
         <Route 
           path="/profile/:region/:gameName/:tagLine" 
           element={
-            <Profile 
+            <ProfileContainer
               summonerData={summonerData}
               detailedMatches={detailedMatches}
               error={error}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              fetchAllPlayerData={fetchAllPlayerData}
+              fetchPlayerData={fetchAllPlayerData}
+              isLoading={isLoading}
             />
           } 
         /> 
