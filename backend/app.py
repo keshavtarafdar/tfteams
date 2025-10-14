@@ -1,4 +1,4 @@
-import os, requests, json
+import os, requests, asyncio, httpx
 from typing import List
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -35,110 +35,93 @@ class MatchIdList(BaseModel):
     match_ids: List[str]
     region: str
 
-API_KEY = os.getenv("RIOT_API_KEY")
-print(API_KEY)
+PLATFORM_MAP = {
+    "americas": "na1",
+    "europe": "euw1",
+    "asia": "kr",
+    "sea": "sg2"
+}
 
-leagueId = None
+API_KEY = os.getenv("RIOT_API_KEY")
 
 # Path option decorator that defines lookup() as handling requests to the route /api/lookup
 @app.post("/api/lookup")
-def get_puuid_and_matches(data:SearchData):
-    # puuid
-    request_url = f"https://{data.region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{data.gameName}/{data.tagLine}"    
+async def get_player_data(data:SearchData):
     headers = { "X-Riot-Token": API_KEY }
+    account_url = f"https://{data.region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{data.gameName}/{data.tagLine}"    
 
-    try:
-        response = requests.get(request_url, headers=headers)
-        response.raise_for_status() # Raises an HTTPError if request is unsuccessful
-    except requests.exceptions.HTTPError as e: # Catches the HTTPError from above
-        if e.response.status_code == 404:
-            raise HTTPException(status_code=404, detail=f"Riot account '{data.gameName}#{data.tagLine}' not found.")
-        raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
-    
-    # fetch matches
-    puuid = response.json()['puuid']
-    match_ids = get_match_history(puuid, data.region, data.start)
-    profileData = get_profile_info(puuid)
+    async with httpx.AsyncClient() as client:
+        # Get the puuid first, for the following requests
+        try:
+            account_response = await client.get(account_url, headers=headers)
+            account_response.raise_for_status()
+            puuid = account_response.json().get('puuid')
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                raise HTTPException(status_code=404, detail=f"Riot account '{data.gameName}#{data.tagLine}' not found.")
+            raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=f"A network/async error occurred: {e}")
+        
+        platform = PLATFORM_MAP.get(data.region.lower(), "na1")
+        league_url = f"https://{platform}.api.riotgames.com/tft/league/v1/by-puuid/{puuid}"
+        summoner_url = f"https://{platform}.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/{puuid}"
+        matches_url = f"https://{data.region}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids?start={data.start}&count=20"
 
-    return {
-        "puuid": puuid,
-        "profileIconId": profileData["profileIconId"],
-        "summonerLevel": profileData["summonerLevel"],
-        "match_ids": match_ids
-    }
+        try:
+            task1 = client.get(league_url, headers=headers)
+            task2 = client.get(summoner_url, headers=headers)
+            task3 = client.get(matches_url, headers=headers)
+            responses = await asyncio.gather(task1, task2, task3, return_exceptions=True)
+            league_res, summoner_res, matches_res = responses
+
+            summoner_data = summoner_res.json() if not isinstance(summoner_res, Exception) and summoner_res.status_code == 200 else {}
+            league_data = league_res.json() if not isinstance(league_res, Exception) and league_res.status_code == 200 else []
+            match_ids = matches_res.json() if not isinstance(matches_res, Exception) and matches_res.status_code == 200 else []
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=f"A network/async error occurred during parallel fetch: {e}")
+
+    # tftleague_data is a list of the different game modes, so just grab ranked from there
+    # NOTE: if you ever care about league-id, it's a part of the TFT-LEAGUE-V1 call
+    ranked_data = next((entry for entry in league_data if entry.get("queueType") == "RANKED_TFT"), None)
+
+    if ranked_data:
+        return {
+            "puuid": puuid,
+            "profileIconId": summoner_data.get("profileIconId"),
+            "summonerLevel": summoner_data.get("summonerLevel"),
+            "match_ids": match_ids,
+            "tier": ranked_data.get("tier"),
+            "rank": ranked_data.get("rank"),
+            "leaguePoints": ranked_data.get("leaguePoints"),
+            "wins": ranked_data.get("wins"),
+            "losses": ranked_data.get("losses"),
+        }
+    else:
+        return {
+            "puuid": puuid,
+            "profileIconId": summoner_data.get("profileIconId"),
+            "summonerLevel": summoner_data.get("summonerLevel"),
+            "match_ids": match_ids,
+            "tier": "Unranked",
+            "rank": "",
+            "leaguePoints": 0,
+            "wins": 0,
+            "losses": 0,
+        }
 
 @app.post("/api/match-details")
-def get_match_details(data:MatchIdList):
-    match_details = []
+async def get_match_details(data:MatchIdList):
     headers = { "X-Riot-Token": API_KEY }
 
-    for id in data.match_ids:
-        request_url = f"https://{data.region}.api.riotgames.com/tft/match/v1/matches/{id}/"
-        try:
-            response = requests.get(request_url, headers=headers)
-            response.raise_for_status()
-            match_details.append(response.json())
-        except requests.exceptions.HTTPError as e:
-            print(f"Match ID #{id} not found: {e}")
-            continue # to next match
-        except requests.exceptions.RequestException as e:
-            raise HTTPException(status_code=503, detail=f"A network error occurred: {e}")
-    
+    async with httpx.AsyncClient() as client:
+        tasks = []
+        for id in data.match_ids:
+            request_url = f"https://{data.region}.api.riotgames.com/tft/match/v1/matches/{id}/"
+            tasks.append(client.get(request_url, headers=headers))
+            
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+        match_details = []
+        for res in responses: match_details.append(res.json())  
+
     return match_details
-        
-def get_leagueId(puuid:str):
-    # TODO this uses na1 instead of americas (so not encapsulated by region var)
-    request_url = f"https://na1.api.riotgames.com/tft/league/v1/by-puuid/{puuid}"
-    headers = { "X-Riot-Token": API_KEY }
-
-    try:
-        response = requests.get(request_url, headers=headers)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 404:
-            raise HTTPException(status_code=404, detail=f"Summoner with PUUID '{puuid}' not found.")
-        raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=503, detail=f"A network error occurred: {e}")
-    
-    leagueId = response.json()['leagueId']
-
-def get_match_history(puuid:str, region: str, start: int = 0):
-    request_url = f"https://{region}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids?start={start}&count=20"
-    headers = { "X-Riot-Token": API_KEY }
-
-    try:
-        response = requests.get(request_url, headers=headers)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 404:
-            raise HTTPException(status_code=404, detail=f"Summoner with PUUID '{puuid}' not found.")
-        raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
-    
-    return response.json()
-
-@app.post("/api/profile-info")
-def get_profile_info(puuid: str):
-    # TODO this uses na1 instead of americas (so not encapsulated by region var)
-    request_url = f"https://na1.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/{puuid}"
-    headers = { "X-Riot-Token": API_KEY }
-
-    try:
-        response = requests.get(request_url, headers=headers)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 404:
-            raise HTTPException(status_code=404, detail=f"Summoner with PUUID '{puuid}' not found.")
-        raise HTTPException(status_code=500, detail=f"An error occurred with the Riot API: {e}")
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=503, detail=f"Could not connect to Riot API: {e}")
-    
-    profileData = response.json()
-    return {
-        "profileIconId": profileData.get("profileIconId"),
-        "summonerLevel": profileData.get("summonerLevel")
-    }
