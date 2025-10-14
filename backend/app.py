@@ -111,17 +111,20 @@ async def get_player_data(data:SearchData):
         }
 
 @app.post("/api/match-details")
-async def get_match_details(data:MatchIdList):
+def get_match_details(data:MatchIdList):
+    match_details = []
     headers = { "X-Riot-Token": API_KEY }
 
-    async with httpx.AsyncClient() as client:
-        tasks = []
-        for id in data.match_ids:
-            request_url = f"https://{data.region}.api.riotgames.com/tft/match/v1/matches/{id}/"
-            tasks.append(client.get(request_url, headers=headers))
-            
-        responses = await asyncio.gather(*tasks, return_exceptions=True)
-        match_details = []
-        for res in responses: match_details.append(res.json())  
-
+    for id in data.match_ids:
+        request_url = f"https://{data.region}.api.riotgames.com/tft/match/v1/matches/{id}/"
+        try:
+            response = requests.get(request_url, headers=headers)
+            response.raise_for_status()
+            match_details.append(response.json())
+        except requests.exceptions.HTTPError as e:
+            print(f"Match ID #{id} not found: {e}")
+            continue # to next match
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=503, detail=f"A network error occurred: {e}")
+    
     return match_details

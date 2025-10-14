@@ -4,7 +4,12 @@ import Match from './components/Match';
 import SpriteAnimation from './components/SpriteAnimation';
 import "./Profile.css"
 
-const ProfileHeader = ({ summonerInfo, gameName, tagLine, matches }) => {
+const ProfileHeader = ({
+  summonerInfo,
+  gameName,
+  tagLine,
+  matches
+}) => {
   const getPlacementColor = (placement) => {
     if (placement === 1) return 'first';
     else if (placement <= 4) return 'top-four';
@@ -12,7 +17,7 @@ const ProfileHeader = ({ summonerInfo, gameName, tagLine, matches }) => {
   };
 
   const placements = matches.map(match => 
-    match.info.participants.find(p => p.puuid === summonerInfo.puuid)?.placement
+    match?.info?.participants.find(p => p.puuid === summonerInfo.puuid)?.placement
   ).filter(Boolean); /* Removes any undefined values */
 
   return (
@@ -82,7 +87,14 @@ const Pagination = ({ currentPage, onPageChange }) => {
   );
 };
 
-const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChange, isLoading }) => {
+const Profile = ({
+  summonerData,
+  detailedMatches,
+  error,
+  currentPage,
+  onPageChange,
+  isLoading
+}) => {
   const { gameName, tagLine } = useParams(); // Extracts URL params
 
   // Display loading animation in the middle of the page
@@ -115,7 +127,9 @@ const Profile = ({ summonerData, detailedMatches, error, currentPage, onPageChan
       <div className="match-history">
         <h2>Match History</h2>
         {detailedMatches.length > 0 ? (
-          detailedMatches.map(match => (
+          detailedMatches
+            .filter(match => match?.metadata && match?.info)
+            .map(match => (
             <Match
               key={match.metadata.match_id}
               matchData={match}
